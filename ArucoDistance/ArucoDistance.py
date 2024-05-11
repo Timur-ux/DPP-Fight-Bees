@@ -1,13 +1,8 @@
 import numpy as np
 import cv2
 from cv2 import aruco
-import zmq
-import CameraCalibrator
 
-
-camera_config = CameraCalibrator.calibrateUsingCamera(0, "./samples", True)
-
-def startRecognize(camera_config):
+def startRecognize(camera_config, cameraId, recognitionProcessor):
     camera_matrix = camera_config["camera_matrix"]
     dist_coeffs = camera_config["distortion"]
 
@@ -17,7 +12,7 @@ def startRecognize(camera_config):
     detector = aruco.ArucoDetector(aruco_dict, detector_parameters)
 
     # Capture video from camera
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(cameraId)
     marker_size = 0.15
     while True:
         ret, frame = cap.read()
@@ -35,13 +30,10 @@ def startRecognize(camera_config):
                 # Calculate distance
                 distance = np.linalg.norm(tvecs[i])
 
-                # Draw axis and distance on the image
-                cv2.drawFrameAxes(frame, camera_matrix, dist_coeffs, rvecs[i], tvecs[i], marker_size * 0.5)
-                cv2.putText(frame, f"Distance: {distance:.2f} meters", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                recognitionProcessor.process({
+                    "distance": distance
+                    })
 
-        cv2.imshow('Frame', frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
 
     cap.release()
     cv2.destroyAllWindows()
