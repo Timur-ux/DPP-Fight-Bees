@@ -1,4 +1,0 @@
-{
-  "CameraSocket": "tcp://127.0.0.1:5000",
-  "ServerSocket": "tcp://127.0.0.1:5001"
-}
