@@ -8,7 +8,13 @@ class Server:
         self.socket.connect(serverSocket)
 
     def process(self, message):
-        print("Accepted message: ", message)
+        data = json.loads(message)
+        if data['distance'] == None:
+            return
+
+        dist = data['distance']
+        if dist >= 1 and dist <= 1.2:
+            print("WARN: worker detected into dangerous zone!")
     
     def startProccessing(self):
         print("Message proccessing started")

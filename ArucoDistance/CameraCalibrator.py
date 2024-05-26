@@ -9,7 +9,7 @@ criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
 def calibrateUsingCamera(cameraIndex=0, dirToStoreGoodCalibrationFrames=None, doLog=False):
     gridHeight = 7
-    gridWidth = 6
+    gridWidth = 5
     print("Calibrating started please keep chessboard image opposite camera")
     objp = np.zeros((gridHeight*gridWidth, 3), np.float32)
     objp[:, :2] = np.mgrid[0:gridHeight, 0:gridWidth].T.reshape(-1, 2)
@@ -45,7 +45,12 @@ def calibrateUsingCamera(cameraIndex=0, dirToStoreGoodCalibrationFrames=None, do
             if (dirToStoreGoodCalibrationFrames is not None):
                 cv.imwrite(
                     f"{dirToStoreGoodCalibrationFrames}/{goodFrames}.jpg", img)
-            time.sleep(0.5)
+        cv.imshow('Frame', img)
+        if cv.waitKey(1) & 0xFF == ord('q'):
+            break
+        time.sleep(0.5)
+  
+    cv.destroyAllWindows()
 
     if gray is None:
         print("Error in calibrateUsingCamera: Bad images, can't calibrate")

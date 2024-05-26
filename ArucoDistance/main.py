@@ -5,6 +5,7 @@ import json
 import utils
 import zmq
 import numpy as np
+import time
 
 DEFAULT_CALIBRATION_RESULT_PATH = "./CalibrationResult.json"
 DEFAULT_SERVER_DATA_PATH = "./Config.json"
@@ -18,7 +19,7 @@ class RecognitionProcessor:
 
     def process(self, data):
         print("Sending data:", data)
-        self.socket.send_string(json.dumps(data))
+        self.socket.send_string(json.dumps(data, cls=utils.NumpyToJsonEncoder))
 
 
 def calibrate(camera_index):
@@ -54,8 +55,10 @@ def startRecognition(camera_index):
     cameraSocket = netConfig["CameraSocket"]
     recognitionProcessor = RecognitionProcessor(context, cameraSocket)
 
+    now = time.time()
     AD.startRecognize(camera_config, camera_index,
                       recognitionProcessor)
+    print(f"time: {time.time() - now}")
 
 
 def main():
@@ -65,14 +68,20 @@ def main():
                         help="point if camera is need to calibrate(Default: False)")
     parser.add_argument("--camera_index", type=int, default=0,
                         help="point camera index that will be calibrated(Default: 0)")
+    parser.add_argument("--video_path", type=str, default="",
+                        help="point video to aruco estimate(Default: "")")
 
     namespace = parser.parse_args()
 
     camera_index = namespace.camera_index
+    video_path = namespace.video_path
     if namespace.calibrate:
         calibrate(camera_index)
+    elif video_path != "":
+        startRecognition(video_path)
     else:
         startRecognition(camera_index)
+
 
 
 if __name__ == "__main__":
