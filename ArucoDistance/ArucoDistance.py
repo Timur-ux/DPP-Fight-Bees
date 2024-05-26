@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 from cv2 import aruco
 
+
 def startRecognize(camera_config, cameraId, recognitionProcessor):
     camera_matrix = camera_config["camera_matrix"]
     dist_coeffs = camera_config["distortion"]
@@ -13,7 +14,7 @@ def startRecognize(camera_config, cameraId, recognitionProcessor):
 
     # Capture video from camera
     cap = cv2.VideoCapture(cameraId)
-    marker_size = 0.15
+    marker_size = 0.1
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -24,7 +25,8 @@ def startRecognize(camera_config, cameraId, recognitionProcessor):
 
         if ids is not None:
             # Estimate pose
-            rvecs, tvecs, _ = aruco.estimatePoseSingleMarkers(corners, marker_size, camera_matrix, dist_coeffs)
+            rvecs, tvecs, _ = aruco.estimatePoseSingleMarkers(
+                corners, marker_size, camera_matrix, dist_coeffs)
 
             for i in range(len(ids)):
                 # Calculate distance
@@ -32,8 +34,7 @@ def startRecognize(camera_config, cameraId, recognitionProcessor):
 
                 recognitionProcessor.process({
                     "distance": distance
-                    })
-
+                })
 
     cap.release()
     cv2.destroyAllWindows()
